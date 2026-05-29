@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "linkding extension",
+  "name": "linkding extension plus",
   "version": "1.15.0",
-  "description": "Companion extension for the linkding bookmark service",
-  "homepage_url": "https://github.com/sissbruecker/linkding-extension/",
+  "description": "Enhanced companion extension for the linkding bookmark service",
+  "homepage_url": "https://github.com/gdomod/linkding-extension-plus",
 
   "icons": {
     "48": "icons/logo_48x48.png",

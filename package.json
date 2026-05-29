@@ -1,17 +1,17 @@
 {
-  "name": "linkding-extension",
+  "name": "linkding-extension-plus",
   "version": "1.15.0",
-  "description": "Companion extension for the linkding bookmark service",
+  "description": "Enhanced companion extension for the linkding bookmark service",
   "license": "MIT",
   "author": "Sascha Ißbrücker",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sissbruecker/linkding-extension.git"
+    "url": "git+https://github.com/gdomod/linkding-extension-plus.git"
   },
   "bugs": {
-    "url": "https://github.com/sissbruecker/linkding-extension/issues"
+    "url": "https://github.com/gdomod/linkding-extension-plus/issues"
   },
-  "homepage": "https://github.com/sissbruecker/linkding-extension#readme",
+  "homepage": "https://github.com/gdomod/linkding-extension-plus#readme",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",

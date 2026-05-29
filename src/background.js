@@ -47,7 +47,7 @@ browser.omnibox.onInputStarted.addListener(async () => {
   const isReady = await initApi();
   const description = isReady
     ? "Search bookmarks in linkding"
-    : "⚠️ Please configure the linkding extension first";
+    : "⚠️ Please configure the linkding extension plus first";
 
   browser.omnibox.setDefaultSuggestion({ description });
 });
