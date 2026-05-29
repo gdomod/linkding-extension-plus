@@ -5,6 +5,7 @@ const DEFAULTS = {
   baseUrl: "",
   token: "",
   default_tags: "",
+  bundleFilter: "",
   useBrowserMetadata: false,
   runSinglefile: false,
   precacheEnabled: false,

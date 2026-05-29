@@ -84,4 +84,55 @@ export const icons = {
       </svg>
     `;
   },
+  arrowDown() {
+    return html`
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M6 9l6 6l6 -6" />
+      </svg>
+    `;
+  },
+  arrowRight() {
+    return html`
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M9 6l6 6l-6 6" />
+      </svg>
+    `;
+  },
+  folder() {
+    return html`
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+        <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.556 0 1.077.27 1.402.722L7.5 4H13.5A1.5 1.5 0 0 1 15 5.5v7A1.5 1.5 0 0 1 13.5 14h-11A1.5 1.5 0 0 1 1 12.5z" fill="#e8a825"/>
+      </svg>
+    `;
+  },
+  folderOpen() {
+    return html`
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+        <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.556 0 1.077.27 1.402.722L7.5 4H13.5A1.5 1.5 0 0 1 15 5.5v.64c.454.207.783.665.756 1.191l-.36 5.077A2 2 0 0 1 13.15 14H2.85a2 2 0 0 1-1.994-1.592L.5 7.29A1.5 1.5 0 0 1 1 6.14V3.5z" fill="#f5c518"/>
+        <path d="M14.979 7.674l-.36 5.077A1 1 0 0 1 13.15 13H2.85a1 1 0 0 1-.998-.796L1.5 7.29A.5.5 0 0 1 2 6.5h12a.5.5 0 0 1 .497.555z" fill="#ffd84d" opacity="0.8"/>
+      </svg>
+    `;
+  },
 };

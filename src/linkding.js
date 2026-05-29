@@ -151,4 +151,62 @@ export class LinkdingApi {
       .then((body) => !!body.results)
       .catch(() => false);
   }
+
+  async getBundles() {
+    const configuration = this.configuration;
+
+    return fetch(`${configuration.baseUrl}/api/bundles/?limit=100`, {
+      headers: {
+        Authorization: `Token ${configuration.token}`,
+      },
+    }).then((response) => {
+      if (response.status === 200) {
+        return response.json().then((body) => body.results);
+      }
+      return Promise.reject(`Error loading bundles: ${response.statusText}`);
+    });
+  }
+
+  async getBookmarksByBundle(bundleId, options = {}) {
+    const configuration = this.configuration;
+    const limit = options.limit || 1000;
+
+    return fetch(
+      `${configuration.baseUrl}/api/bookmarks/?bundle=${bundleId}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Token ${configuration.token}`,
+        },
+      }
+    ).then((response) => {
+      if (response.status === 200) {
+        return response.json().then((body) => body.results);
+      }
+      return Promise.reject(
+        `Error fetching bundle bookmarks: ${response.statusText}`,
+      );
+    });
+  }
+
+  async getAllBookmarks(options = {}) {
+    const configuration = this.configuration;
+    const limit = options.limit || 1000;
+    const shared = options.shared !== undefined ? options.shared : 'all';
+
+    return fetch(
+      `${configuration.baseUrl}/api/bookmarks/?limit=${limit}&shared=${shared}`,
+      {
+        headers: {
+          Authorization: `Token ${configuration.token}`,
+        },
+      }
+    ).then((response) => {
+      if (response.status === 200) {
+        return response.json().then((body) => body.results);
+      }
+      return Promise.reject(
+        `Error fetching bookmarks: ${response.statusText}`,
+      );
+    });
+  }
 }

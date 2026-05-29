@@ -15,6 +15,7 @@ export class Options extends LitElement {
     precacheEnabled: { type: Boolean, state: true },
     closeAddBookmarkWindowOnSave: { type: Boolean, state: true },
     closeAddBookmarkWindowOnSaveMs: { type: Number, state: true },
+    bundleFilter: { type: String, state: true },
     isSuccess: { type: Boolean, state: true },
     isError: { type: Boolean, state: true },
   };
@@ -31,6 +32,7 @@ export class Options extends LitElement {
     this.precacheEnabled = false;
     this.closeAddBookmarkWindowOnSave = false;
     this.closeAddBookmarkWindowOnSaveMs = 500;
+    this.bundleFilter = "";
     this.isSuccess = false;
     this.isError = false;
   }
@@ -58,6 +60,7 @@ export class Options extends LitElement {
     this.precacheEnabled = config.precacheEnabled;
     this.closeAddBookmarkWindowOnSave = config.closeAddBookmarkWindowOnSave;
     this.closeAddBookmarkWindowOnSaveMs = config.closeAddBookmarkWindowOnSaveMs;
+    this.bundleFilter = config.bundleFilter || "";
   }
 
   async handleSubmit(e) {
@@ -73,6 +76,7 @@ export class Options extends LitElement {
       precacheEnabled: this.precacheEnabled,
       closeAddBookmarkWindowOnSave: this.closeAddBookmarkWindowOnSave,
       closeAddBookmarkWindowOnSaveMs: this.closeAddBookmarkWindowOnSaveMs,
+      bundleFilter: this.bundleFilter,
     };
 
     const testResult = await new LinkdingApi(config).testConnection(config);
@@ -152,6 +156,21 @@ export class Options extends LitElement {
           />
           <div class="form-input-hint">
             Set of tags that should be added to new bookmarks by default.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-bundle-filter">Bundle Filter</label>
+          <input
+            class="form-input"
+            type="text"
+            id="input-bundle-filter"
+            placeholder="e.g. Work, Programming"
+            .value="${this.bundleFilter}"
+            @input="${(e) => this.handleInputChange(e, "bundleFilter")}"
+          />
+          <div class="form-input-hint">
+            Comma-separated list of bundle names. When set, the bookmark tree only shows bookmarks from the matching bundles.
           </div>
         </div>
 

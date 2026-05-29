@@ -1,5 +1,7 @@
 import { LitElement, html, nothing } from "lit";
 import "./tag-autocomplete.js";
+import "./bookmarks-tree.js";
+import { getCachedBookmarks, cacheBookmarks, clearCachedBookmarks } from "./cache.js";
 import {
   getBrowserMetadata,
   getCurrentTabInfo,
@@ -37,7 +39,11 @@ export class PopupForm extends LitElement {
     tabInfo: { type: Object, state: true },
     extensionConfiguration: { type: Object, state: true },
     loading: { type: Boolean, state: true },
+    formLoading: { type: Boolean, state: true },
     deleteConfirmVisible: { type: Boolean, state: true },
+    viewMode: { type: String, state: true },
+    bookmarks: { type: Array, state: true },
+    tagsList: { type: Array, state: true },
   };
 
   constructor() {
@@ -63,7 +69,12 @@ export class PopupForm extends LitElement {
     this.tabInfo = null;
     this.extensionConfiguration = null;
     this.loading = false;
+    this.formLoading = false;
     this.deleteConfirmVisible = false;
+    this.viewMode = "tree";
+    this.bookmarks = [];
+    this.tagsList = [];
+    this.formInitialized = false;
   }
 
   createRenderRoot() {
@@ -72,8 +83,9 @@ export class PopupForm extends LitElement {
 
   firstUpdated(props) {
     super.firstUpdated(props);
-
     this.classList.add("bookmark-form");
+    document.body.style.height = "600px";
+    document.body.style.overflow = "hidden";
   }
 
   updated(changedProperties) {
@@ -88,39 +100,138 @@ export class PopupForm extends LitElement {
   }
 
   async init() {
-    // First get cached user profile to quickly show something, then update it
-    // in the background
+    this.extensionConfiguration = await getConfiguration();
+
     this.profile = await getProfile();
     updateProfile().then((updatedProfile) => {
       this.profile = updatedProfile;
     });
 
-    // Load available tags in the background
     this.tags = this.configuration.default_tags;
+
+    const hasBundleFilter = this.extensionConfiguration.bundleFilter?.trim();
+
+    // Always load tags for the form's tag autocomplete
     this.api
       .getTags()
       .catch(() => [])
       .then((tags) => {
         this.availableTagNames = tags.map((tag) => tag.name);
+        // Only use for tree when no bundle filter active
+        if (!hasBundleFilter) {
+          this.tagsList = tags;
+        }
       });
 
-    // Initialize bookmark form
-    await this.initForm();
-    this.extensionConfiguration = await getConfiguration();
+    if (hasBundleFilter) {
+      await this.loadBundleFilteredBookmarks();
+    } else {
+      await this.loadBookmarks();
+    }
+  }
+
+  async loadBundleFilteredBookmarks() {
+    this.loading = true;
+    this.viewMode = "tree";
+
+    try {
+      const bundleNames = this.extensionConfiguration.bundleFilter
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter((s) => s.length > 0);
+
+      const allBundles = await this.api.getBundles();
+      const matched = allBundles.filter((b) =>
+        bundleNames.includes(b.name.toLowerCase())
+      );
+
+      if (matched.length === 0) {
+        this.errorMessage = `Bundle filter: no bundles found matching "${this.extensionConfiguration.bundleFilter}"`;
+        this.bookmarks = [];
+        this.tagsList = [];
+      } else {
+        // Fetch bookmarks for each matched bundle in parallel
+        const results = await Promise.all(
+          matched.map((b) => this.api.getBookmarksByBundle(b.id))
+        );
+
+        // Merge and deduplicate by bookmark ID
+        const seen = new Set();
+        const merged = [];
+        for (const arr of results) {
+          for (const bm of arr) {
+            if (!seen.has(bm.id)) {
+              seen.add(bm.id);
+              merged.push(bm);
+            }
+          }
+        }
+        this.bookmarks = merged;
+
+        // Derive tags directly from bookmarks — no extra API call needed
+        const tagNames = new Set();
+        for (const bm of merged) {
+          bm.tag_names?.forEach((t) => tagNames.add(t));
+        }
+        this.tagsList = Array.from(tagNames)
+          .sort()
+          .map((name) => ({ name }));
+      }
+    } catch (e) {
+      this.errorMessage = `Error loading bundle bookmarks: ${e}`;
+      console.error(this.errorMessage);
+    }
+
+    this.loading = false;
+  }
+
+  async loadBookmarks() {
+    this.loading = true;
+    this.viewMode = "tree";
+
+    try {
+      const cached = await getCachedBookmarks();
+      if (cached) {
+        this.bookmarks = cached;
+      } else {
+        this.bookmarks = await this.api.getAllBookmarks();
+        await cacheBookmarks(this.bookmarks);
+      }
+    } catch (e) {
+      this.errorMessage = `Error loading bookmarks: ${e}`;
+      console.error(this.errorMessage);
+    }
+    this.loading = false;
+  }
+
+  async switchToForm() {
+    this.viewMode = "form";
+    if (!this.formInitialized) {
+      this.formInitialized = true;
+      await this.initForm();
+    }
+  }
+
+  switchToTree() {
+    if (this.bookmarks.length === 0) {
+      this.loadBookmarks();
+    } else {
+      this.viewMode = "tree";
+    }
   }
 
   async initForm() {
     this.tabInfo = await getCurrentTabInfo();
     this.url = this.tabInfo.url;
 
-    this.loading = true;
+    this.formLoading = true;
 
     const [serverMetadata, browserMetadata] = await Promise.all([
       loadServerMetadata(this.url),
       getBrowserMetadata(this.url),
     ]);
 
-    this.loading = false;
+    this.formLoading = false;
 
     if (this.configuration.useBrowserMetadata) {
       this.title = browserMetadata.title;
@@ -183,6 +294,7 @@ export class PopupForm extends LitElement {
         disable_html_snapshot: this.extensionConfiguration?.runSinglefile,
       });
       await clearCachedServerMetadata();
+      await clearCachedBookmarks();
 
       this.saveState = "success";
 
@@ -233,6 +345,7 @@ export class PopupForm extends LitElement {
     try {
       await this.api.deleteBookmark(this.existingBookmark.id);
       await clearCachedServerMetadata();
+      await clearCachedBookmarks();
       removeBadge(this.tabInfo.id);
       window.close();
     } catch (e) {
@@ -270,10 +383,16 @@ export class PopupForm extends LitElement {
     return html`
       <div class="title-row">
         <h1 class="h6">
-          ${this.existingBookmark ? "Edit Bookmark" : "Add bookmark"}
+          ${this.viewMode === "tree" ? "Bookmarks" : (this.existingBookmark ? "Edit Bookmark" : "Add bookmark")}
         </h1>
         ${this.renderHeaderActions()}
       </div>
+      ${this.viewMode === "tree" ? this.renderBookmarksTree() : this.renderForm()}
+    `;
+  }
+
+  renderForm() {
+    return html`
       <form class="form" @submit="${this.handleSubmit}">
         <div class="form-group">
           <label class="form-label" for="input-url">URL</label>
@@ -286,7 +405,7 @@ export class PopupForm extends LitElement {
               .value="${this.url}"
               @input="${(e) => this.handleInputChange(e, "url")}"
             />
-            ${this.loading ? html`<i class="form-icon loading"></i>` : ""}
+            ${this.formLoading ? html`<i class="form-icon loading"></i>` : ""}
           </div>
           ${this.existingBookmark
             ? html`
@@ -452,9 +571,30 @@ export class PopupForm extends LitElement {
 
   renderHeaderActions() {
     return html`
+      ${this.viewMode === "tree"
+        ? html`
+            <button
+              type="button"
+              class="btn btn-link ml-auto"
+              @click="${this.switchToForm}"
+              title="Add new bookmark"
+            >
+              + Add
+            </button>
+          `
+        : html`
+            <button
+              type="button"
+              class="btn btn-link ml-auto"
+              @click="${this.switchToTree}"
+              title="View bookmarks"
+            >
+              ${icons.externalLink()}
+            </button>
+          `}
       <button
         type="button"
-        class="btn btn-link ml-auto"
+        class="btn btn-link ml-4"
         @click="${this.handleOptions}"
         title="Options"
       >
@@ -468,6 +608,39 @@ export class PopupForm extends LitElement {
       >
         ${icons.externalLink()}
       </button>
+    `;
+  }
+
+  async editBookmark(bookmark) {
+    this.formInitialized = true;
+    this.existingBookmark = bookmark;
+    this.url = bookmark.url;
+    this.title = bookmark.title || "";
+    this.description = bookmark.description || "";
+    this.notes = bookmark.notes || "";
+    this.tags = bookmark.tag_names ? bookmark.tag_names.join(" ") : "";
+    this.unread = bookmark.unread || false;
+    this.shared = bookmark.shared || false;
+    this.saveState = "";
+    this.errorMessage = "";
+    try {
+      this.tabInfo = await getCurrentTabInfo();
+    } catch (e) {}
+    this.viewMode = "form";
+  }
+
+  renderBookmarksTree() {
+    return html`
+      <ld-bookmarks-tree
+        .bookmarks="${this.bookmarks}"
+        .tags="${this.tagsList}"
+        .loading="${this.loading}"
+        @edit-bookmark="${(e) => this.editBookmark(e.detail.bookmark)}"
+        @open-same-tab="${(e) => { chrome.tabs.update({ url: e.detail.url }); window.close(); }}"
+      ></ld-bookmarks-tree>
+      ${this.errorMessage
+        ? html`<div class="error-message">${this.errorMessage}</div>`
+        : ""}
     `;
   }
 

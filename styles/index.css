@@ -9,11 +9,35 @@ html, body {
 }
 
 body {
-    padding: var(--unit-4);
-    min-width: 400px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--unit-4);
+  min-width: 400px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+ld-popup {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .bookmark-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+
+  ld-bookmarks-tree {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
   form {
     width: 100%;
     max-width: 400px;
@@ -80,4 +104,243 @@ body {
 .form-input {
   /* Override responsive styles that change font-size on inputs */
   font-size: var(--font-size) !important;
+}
+
+.error-message {
+  color: #d32f2f;
+  padding: var(--unit-2);
+  background: #ffebee;
+  border-radius: 4px;
+  margin-top: var(--unit-2);
+}
+
+/* ── Bookmarks Tree ─────────────────────────────── */
+
+.bookmarks-tree {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.bookmarks-tree,
+.bookmarks-tree * {
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.bookmarks-tree .search-bar input {
+  cursor: text;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.bookmarks-tree .loading-state,
+.bookmarks-tree .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 40px 20px;
+  color: var(--secondary-text-color);
+  gap: 10px;
+}
+
+.bookmarks-tree .loading-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: tree-spin 0.7s linear infinite;
+}
+
+@keyframes tree-spin {
+  to { transform: rotate(360deg); }
+}
+
+.bookmarks-tree .search-bar {
+  padding-bottom: var(--unit-2);
+}
+
+.bookmarks-tree .search-bar input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bookmarks-tree .tag-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--unit-2);
+  padding-bottom: var(--unit-1);
+  margin-bottom: var(--unit-1);
+  border-bottom: 1px solid var(--secondary-border-color);
+}
+
+.bookmarks-tree .tag-controls .btn {
+  color: var(--secondary-text-color);
+  font-size: var(--font-size-sm);
+  height: auto;
+  padding: 0;
+}
+
+.bookmarks-tree .tag-controls .btn:hover {
+  color: var(--text-color);
+  text-decoration: underline;
+}
+
+.bookmarks-tree .tag-controls-divider {
+  color: var(--secondary-text-color);
+  font-size: var(--font-size-sm);
+}
+
+.bookmarks-tree .tag-list {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.bookmarks-tree .no-results {
+  padding: var(--unit-4);
+  color: var(--secondary-text-color);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.bookmarks-tree .tag-group {
+  margin-bottom: 1px;
+}
+
+.bookmarks-tree .tag-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 4px;
+  min-height: 22px;
+  border-radius: var(--border-radius);
+}
+
+.bookmarks-tree .tag-header:hover {
+  background: var(--primary-color-shade);
+}
+
+.bookmarks-tree .tree-arrow {
+  font-size: 7px;
+  width: 12px;
+  flex-shrink: 0;
+  text-align: center;
+  color: var(--secondary-text-color);
+  line-height: 1;
+}
+
+.bookmarks-tree .tag-header svg {
+  flex-shrink: 0;
+}
+
+.bookmarks-tree .tag-name {
+  font-size: var(--font-size);
+  color: var(--text-color);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookmarks-tree .tag-count {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  color: var(--secondary-text-color);
+  line-height: 1;
+}
+
+.bookmarks-tree .tag-bookmarks {
+  /* ├ aligns under folder icon: tag-header-pad(4) + arrow(12) + gap(5) = 21px */
+  padding-left: 21px;
+}
+
+.bookmarks-tree .bookmark-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 4px;
+  min-height: 22px;
+  border-radius: var(--border-radius);
+  transition: background 0.1s;
+}
+
+.bookmarks-tree .bookmark-item:hover {
+  background: var(--primary-color-shade);
+}
+
+.bookmarks-tree .bookmark-item:hover .bookmark-title {
+  color: var(--primary-text-color);
+}
+
+.bookmarks-tree .tree-connector {
+  flex-shrink: 0;
+  /* 16px: 21 + 16 + 5(gap) = 42px → favicon aligns under tag-name */
+  width: 16px;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--border-color);
+  font-family: var(--mono-font-family);
+}
+
+.bookmarks-tree .bookmark-favicon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.bookmarks-tree .bookmark-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size);
+  color: var(--text-color);
+  line-height: 1.4;
+  transition: color 0.1s;
+}
+
+.context-menu {
+  position: fixed;
+  background: var(--body-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-lg);
+  z-index: var(--zindex-4);
+  min-width: 160px;
+  padding: var(--unit-1) 0;
+}
+
+.context-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--unit-2) var(--unit-4);
+  font-size: var(--font-size);
+  color: var(--text-color);
+  background: none;
+  border: none;
+  cursor: default;
+  user-select: none;
+  line-height: var(--line-height);
+}
+
+.context-menu-item:hover {
+  background: var(--primary-color-shade);
+  color: var(--primary-text-color);
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: var(--secondary-border-color);
+  margin: var(--unit-1) 0;
 }

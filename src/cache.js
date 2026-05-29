@@ -3,6 +3,9 @@ import { getConfiguration, isConfigurationComplete } from "./configuration";
 import { LinkdingApi } from "./linkding";
 
 const SERVER_METADATA_CACHE_KEY = "ld_server_metadata_cache";
+const BOOKMARKS_CACHE_KEY = "ld_bookmarks_cache";
+const BOOKMARKS_CACHE_TIME_KEY = "ld_bookmarks_cache_time";
+const BOOKMARKS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export async function loadServerMetadata(url, precacheRequest = false) {
   // the function should be called with precacheRequest = true
@@ -55,4 +58,32 @@ export async function cacheServerMetadata(tabMetadata) {
 
 export async function clearCachedServerMetadata() {
   await cacheServerMetadata(null);
+}
+
+export async function getCachedBookmarks() {
+  const cacheTime = await getStorageItem(BOOKMARKS_CACHE_TIME_KEY);
+  if (!cacheTime) {
+    return null;
+  }
+
+  const now = Date.now();
+  const timeDiff = now - parseInt(cacheTime, 10);
+
+  if (timeDiff > BOOKMARKS_CACHE_DURATION) {
+    return null;
+  }
+
+  const json = await getStorageItem(BOOKMARKS_CACHE_KEY);
+  return json ? JSON.parse(json) : null;
+}
+
+export async function cacheBookmarks(bookmarks) {
+  const json = JSON.stringify(bookmarks);
+  await setStorageItem(BOOKMARKS_CACHE_KEY, json);
+  await setStorageItem(BOOKMARKS_CACHE_TIME_KEY, Date.now().toString());
+}
+
+export async function clearCachedBookmarks() {
+  await setStorageItem(BOOKMARKS_CACHE_KEY, null);
+  await setStorageItem(BOOKMARKS_CACHE_TIME_KEY, null);
 }
