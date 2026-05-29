@@ -3,7 +3,7 @@
 set -e  # Exit on error
 
 # Variables
-EXTENSION_NAME="linkding"
+EXTENSION_NAME="linkding-extension-plus"
 DIST_DIR="dist"
 MANIFEST_FILE="manifest.json"
 INCLUDE_ITEMS=("manifest.json" "build" "icons" "options" "popup" "styles")
