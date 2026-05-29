@@ -35,6 +35,13 @@ ZIP_FILE="$DIST_DIR/${EXTENSION_NAME}-${VERSION}.zip"
 
 # Build the zip
 echo "Packaging extension version $VERSION into $ZIP_FILE..."
-zip -r "$ZIP_FILE" "${INCLUDE_ITEMS[@]}"
+if command -v zip &> /dev/null; then
+  zip -r "$ZIP_FILE" "${INCLUDE_ITEMS[@]}"
+else
+  # Fallback: PowerShell (Windows / Git Bash without zip)
+  ITEMS_PS=$(printf '"%s",' "${INCLUDE_ITEMS[@]}")
+  ITEMS_PS="${ITEMS_PS%,}"
+  powershell.exe -Command "Compress-Archive -Path ${ITEMS_PS} -DestinationPath '${ZIP_FILE}' -Force"
+fi
 
-echo "✅ Done!"
+echo "✅ Done! → ${ZIP_FILE}"
