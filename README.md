@@ -1,6 +1,6 @@
 # Linkding Extension Plus
 
-[<img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/UV4C4ybeBTsZt43U4xis.png" alt="Available in the Chrome Web Store" height="58">](https://chromewebstore.google.com/detail/linkding-extension-plus/kaaecpjmmcibecogckkeegljhjkpjllh)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/kaaecpjmmcibecogckkeegljhjkpjllh?label=Chrome%20Web%20Store&logo=googlechrome&logoColor=white&color=4285F4)](https://chromewebstore.google.com/detail/linkding-extension-plus/kaaecpjmmcibecogckkeegljhjkpjllh)
 
 A feature-enhanced browser extension for the [linkding](https://github.com/sissbruecker/linkding) bookmark manager — built on top of the original [linkding-extension](https://github.com/sissbruecker/linkding-extension) by Sascha Ißbrücker.
 
