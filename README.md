@@ -17,34 +17,22 @@ This fork adds a number of UX improvements focused on fast bookmark browsing dir
 | **Bundle Filter** | Filter the tree to show only bookmarks from specific linkding bundles |
 | **Manifest V3** | Updated to MV3 for compatibility with current Chrome/Edge versions |
 
-## Preview
+## Screenshots
 
-```
-┌─────────────────────────────────────────┐
-│ Bookmarks              + Add  ⚙  ↗      │
-├─────────────────────────────────────────┤
-│ 🔍 Search bookmarks...                  │
-│ Expand all · Collapse all               │
-├─────────────────────────────────────────┤
-│ ▼ 📂 automation                    12   │
-│    ├ 🌐 Sonarr                          │
-│    ├ 🌐 Huginn                          │
-│    └ 🌐 n8n                             │
-│ ▶ 📁 development                   34   │
-│ ▶ 📁 self-hosted                   21   │
-└─────────────────────────────────────────┘
-```
+### Bookmark Tree
+The popup opens directly with the bookmark tree — organized by tags, with favicons and tree connectors.
 
-Right-clicking a bookmark opens a context menu:
+![Bookmark Tree](screenshots/screenshot-tree.png)
 
-```
-┌──────────────┐
-│  New tab     │
-│  Same tab    │
-├──────────────┤
-│  Edit        │
-└──────────────┘
-```
+### Settings
+Configure your linkding server URL, API token, and optional bundle filter.
+
+![Settings](screenshots/screenshot-settings.png)
+
+### Where to find the API token
+The API token can be found in your linkding installation under **Settings → Integrations**.
+
+![API Token](screenshots/screenshot-api-token.png)
 
 ## Installation
 
